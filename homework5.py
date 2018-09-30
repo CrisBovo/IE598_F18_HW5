@@ -267,7 +267,31 @@ print('LDA transform_support vector machines_training score: ', svm.score(X_trai
 print('LDA transform_support vector machines_testing score: ', svm.score(X_test_lda, y_test))
 
 #kPCA   
-kPCA = KernelPCA(n_components=2)
+
+gamma_space = np.logspace(-2, 0, 10)
+lr_train = []
+lr_test = []  
+svm_train = [] 
+svm_test = []
+for gamma in gamma_space:
+    kPCA = KernelPCA(n_components=2, kernel = 'rbf', gamma = gamma)
+    X_train_kpca = kPCA.fit_transform(X_train_std, y_train)
+    X_test_kpca = kPCA.transform(X_test_std)
+    lr = LogisticRegression()
+    lr = lr.fit(X_train_kpca, y_train)
+    lr_train.append(lr.score(X_train_kpca, y_train))
+    lr_test.append(lr.score(X_test_kpca, y_test))
+    svm = SVC(kernel = 'linear', C = 1.0, random_state = 1)
+    svm.fit(X_train_kpca, y_train)
+    svm_train.append(svm.score(X_train_kpca, y_train))
+    svm_test.append(svm.score(X_test_kpca, y_test))
+    
+print("gamma  lr_train  lr_test  svm_train  svm_test")
+for i in range(10):
+    print('%.3f,   %.3f,   %.3f,    %.3f,    %.3f' % (gamma_space[i], lr_train[i], lr_test[i],
+                                                                    svm_train[i],   svm_test[i],))
+
+kPCA = KernelPCA(n_components=2, kernel = 'rbf', gamma = 0.028)
 X_train_kpca = kPCA.fit_transform(X_train_std, y_train)
 X_test_kpca = kPCA.transform(X_test_std)
 
